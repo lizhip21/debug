@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="description" content="GeoNarrative" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>My Favorite Food Places near UW</title>
+  <!-- <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,400;0,500;1,400;1,500&display=swap" /> -->
+  <!-- <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/v2.8.1/mapbox-gl.css"> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css"> -->
+  <link rel="stylesheet" href="css/main.css">
+  <script src="https://unpkg.com/scrollama"></script>
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.8.1/mapbox-gl.js"></script>
+</head>
+
+<body>
+  <!-- loading a video cover page -->
+  <section id="cover">
+    <!-- loading a video as the background -->
+    <video class="fullscreen canvas-center" playsinline="" autoplay="" muted="" loop="">
+      <source src="assets/flip.mp4" type="video/mp4">
+    </video>
+    <div id="intro">
+      <h1>My Favorite Food Places near UW</h1>
+      <h5>By: Abi Chinn</h5>
+        <p>GEOG 458 Lab 7: GeoNarrative</p>
+
+      <div class="footnote">
+        <a class="white-link" target="_blank" href="https://www.pexels.com/video/a-cook-using-a-wok-2620043/">Video by Engin Akyurt</a>
+      </div>
+    </div>
+  </section>
+  <!-- a geonarrative will have two major components, a storyboard and a script panel of a series of scenes/actions -->
+  <section id="geonarrative">
+    <!-- a storymap can present differnt types of objects, like map, chart, diagram, etc. -->
+    <div id="storyboard">
+      <!-- create the place holder element for map -->
+      <div id="map"></div>
+    </div>
+
+    <article class="scene" data-scene="0">
+      <h2>Macu Tea</h2>
+      <img class="img" src="img/macu.jpg" style="width: 50%; height: auto; display: block; margin: 0 auto;"></img>
+      <p>Place with some great milk tea! Pictured are the Tieguanyin Oolong Milk Tea and Golden Leaf Milk Tea!</p>
+    </article>
+    <article class="scene" data-scene="1">
+      <h2>YFG Malatang</h2>
+      <img class="img" src="img/yfg.jpg" style="width: 50%; height: auto; display: block; margin: 0 auto;"></img>
+      <p>Place with delicious malatang. You get to choose what items you want to put in your meal and the choose a soup base. Pictured is my malatang!</p>
+    </article>
+    <article class="scene" data-scene="2">
+      <h2>YiFang</h2>
+      <img class="img" src="img/yifang.jpg" style="width: 50%; height: auto; display: block; margin: 0 auto;"></img>
+      <p>Place with also some great boba! Pictured is the Matcha Boba Latte!</p>
+    </article>
+    <article class="scene" data-scene="3">
+      <h2>Don't Yell at Me</h2>
+      <img class="img" src="img/dont.jpg" style="width: 50%; height: auto; display: block; margin: 0 auto;"></img>
+      <p>Place with great boba! My favorite and pictured is the Lavendar Milk Tea!</p>
+    </article>
+    <article class="scene" data-scene="4">
+      <h2>Cultivate</h2>
+      <img class="img" src="img/cultivate.jpg" style="width: 50%; height: auto; display: block; margin: 0 auto;"></img>
+      <p>Place on-campus with some great food for on-campus dining. Pictured is the Avocado Toast with Rosemary Potatoes!</p>
+    </article>
+    <article class="scene" data-scene="5">
+      <h2>MOD Pizza</h2>
+      <img class="img" src="img/mod.jpg" style="width: 50%; height: auto; display: block; margin: 0 auto;"></img>
+      <p>Place with custom-made pizza. Pictured is my pizza creation!</p>
+    </article>
+    <article class="scene fullscreen" data-scene="6">
+      <h2>Thanks for joining me on this journey, looking at some of my favorite places near UW!</h2>
+    </article>
+
+  </section>
+
+
+  <script>
+    // 1. Declare the maps, script panels, and different thematic layers.
+    let map, scriptPanel = scrollama(), countiesLayer, cultivateLayer;
+
+    // 2. Intialize the layout.
+   
+    history.scrollRestoration = "manual"; // make sure the geo-narrative will be scrolled to the cover page even after a page refresh.
+    window.scrollTo(0, 0); // scroll the geo-narrative to the coverpage
+    adjustStoryboardlSize(); // force a browser window resize.
+    window.addEventListener("resize", adjustStoryboardlSize); // // ask the browser window listen to the resize event, thereby force a viewport resize whenever adjusting the window size.
+
+    // 3. Define Generic window resize listener event
+    function adjustStoryboardlSize() {
+
+      const scenes = document.getElementsByClassName("scene");
+      const storyboard = document.getElementById("storyboard");
+
+      // 3.1 determine the height of each scene element
+      let sceneH = Math.floor(window.innerHeight * 0.75);
+      for (const scene of scenes) {
+        scene.style.height = sceneH + "px";
+      }
+      
+      // 3.2 determin the height of the storyboard.
+      let storyboardHeight = window.innerHeight;
+      let storyboardMarginTop = (window.innerHeight - storyboardHeight) / 2;
+
+      storyboard.style.height = storyboardHeight + "px";
+      storyboard.style.top = storyboardMarginTop + "px"
+
+      // 3.3 tell scrollama/script panel to update new element dimensions
+      scriptPanel.resize();
+    }
+
+    // 4. Initialize the mapbox
+    mapboxgl.accessToken =
+      'pk.eyJ1IjoiYWNoaW5uIiwiYSI6ImNscmw4dGp3dDBsdGMyanBnYzJnYTBwa2QifQ.DjOk5jGS6jBfpiEY0lilmw'; // Assign the access token
+   
+    map = new mapboxgl.Map({
+      container: 'map', // container ID
+      style: 'mapbox://styles/mapbox/light-v10',
+      zoom: 15, // starting zoom
+      minZoom: 3,
+      maxZoom: 30,
+      center: [-122.323024, 47.660003], // starting center
+      scrollZoom: false,
+      boxZoom: false,
+      doubleClickZoom: false
+    });  // Declare the map object
+
+    // An alternative way to disable map zoom when using scroll
+    // map.scrollZoom.disable();
+
+
+    // 5. define the asynchronous function to load geojson data and then performs the dependent actions.
+    async function geojsonFetch() {
+
+      // 6 wait till the data are fully loaded.
+
+      response = await fetch("assets/cultivate.geojson");
+      cultivate = await response.json();
+
+      response = await fetch("assets/mod.geojson");
+      mod = await response.json();
+
+      response = await fetch("assets/dont.geojson");
+      dont = await response.json();
+
+      response = await fetch("assets/macu.geojson");
+      macu = await response.json();
+
+      response = await fetch("assets/yfg.geojson");
+      yfg = await response.json();
+
+      response = await fetch("assets/yifang.geojson");
+      yifang = await response.json();
+      console.log("data loaded")
+      console.log(map)
+
+      // 7. Trigger operations inside of the the ()=> {} funciton while loading the map.
+      map.on('load', () => {
+        console.log("map source and layers")
+
+        // 8. add map source and declare layers.
+        map.addSource('cultivate-src', {
+          type: 'geojson',
+          data: cultivate
+        });
+        cultivateLayer = {
+          'id': 'cultivate-points',
+          'type': 'circle',
+          'source': 'cultivate-src',
+          'minzoom': 5,
+          'paint': {
+            'circle-color': 'brown',
+            'circle-radius': 7,
+            'circle-opacity': 0.8,
+          }
+        };
+
+        map.addSource('mod-src', {
+          type: 'geojson',
+          data: mod
+        });
+        modLayer = {
+          'id': 'mod-points',
+          'type': 'circle',
+          'source': 'mod-src',
+          'minzoom': 5,
+          'paint': {
+            'circle-color': 'brown',
+            'circle-radius': 7,
+            'circle-opacity': 0.8,
+          }
+        };
+
+        map.addSource('dont-src', {
+          type: 'geojson',
+          data: dont
+        });
+        dontLayer = {
+          'id': 'dont-points',
+          'type': 'circle',
+          'source': 'dont-src',
+          'minzoom': 5,
+          'paint': {
+            'circle-color': 'brown',
+            'circle-radius': 7,
+            'circle-opacity': 0.8,
+          }
+        };
+
+        map.addSource('macu-src', {
+          type: 'geojson',
+          data: macu
+        });
+        macuLayer = {
+          'id': 'macu-points',
+          'type': 'circle',
+          'source': 'macu-src',
+          'minzoom': 5,
+          'paint': {
+            'circle-color': 'brown',
+            'circle-radius': 7,
+            'circle-opacity': 0.8,
+          }
+        };
+
+        map.addSource('yfg-src', {
+          type: 'geojson',
+          data: yfg
+        });
+        yfgLayer = {
+          'id': 'yfg-points',
+          'type': 'circle',
+          'source': 'yfg-src',
+          'minzoom': 5,
+          'paint': {
+            'circle-color': 'brown',
+            'circle-radius': 7,
+            'circle-opacity': 0.8,
+          }
+        };
+
+        map.addSource('yifang-src', {
+          type: 'geojson',
+          data: yifang
+        });
+        yifangLayer = {
+          'id': 'yifang-points',
+          'type': 'circle',
+          'source': 'yifang-src',
+          'minzoom': 5,
+          'paint': {
+            'circle-color': 'brown',
+            'circle-radius': 7,
+            'circle-opacity': 0.8,
+          }
+        };
+        console.log('layers')
+
+        // 9. Initialize the script panel
+        scriptPanel
+          .setup({
+            step: ".scene", // all the scenes.
+            offset: 0.33, // the location of the enter and exit trigger
+            debug: false // toggler on or off the debug mode.
+          })
+          .onStepEnter(handleSceneEnter)
+          .onStepExit(handleSceneExit);
+        
+        // 10. This function performs when a scene enters the storyboard
+        function handleSceneEnter(response) {
+
+          var index = response.index; // capture the id of the current scene. 
+
+          if (index === 4) { // When enter the first scene
+
+            map.flyTo({
+              center: [-122.323024, 47.660003],
+              zoom: 15,
+
+            }); // fly to a new location
+            
+
+            if (typeof (map.getSource('cultivate-src')) == 'undefined') {
+              map.addSource('cultivate-src', {
+                type: 'geojson',
+                data: cultivate
+              });
+            } else {
+              map.getSource('cultivate-src').setData(cultivate);
+
+            }
+
+            if (!map.getLayer("cultivate-points")) {
+              map.addLayer(cultivateLayer);
+              console.log("cultivate");
+            }
+          } else if (index === 5) {
+            map.flyTo({
+              center: [-122.323024, 47.660003],
+              zoom: 15,
+
+            }); // fly to a new location
+          
+            if (typeof (map.getSource('mod-src')) == 'undefined') {
+              map.addSource('mod-src', {
+                type: 'geojson',
+                data: mod
+              });
+            } else {
+              map.getSource('mod-src').setData(mod);
+
+            }
+
+            if (!map.getLayer("mod-points")) {
+              map.addLayer(modLayer);
+              console.log('mod!');
+            }
+
+          } else if (index === 3) {
+            map.flyTo({
+              center: [-122.323024, 47.660003],
+              zoom: 15,
+
+            }); // fly to a new location
+            
+
+            if (typeof (map.getSource('dont-src')) == 'undefined') {
+              map.addSource('dont-src', {
+                type: 'geojson',
+                data: dont
+              });
+            } else {
+              map.getSource('dont-src').setData(dont);
+
+            }
+
+            if (!map.getLayer("dont-points")) {
+              map.addLayer(dontLayer);
+            }
+
+          }
+          else if (index === 0) {
+            map.flyTo({
+              center: [-122.323024, 47.660003],
+              zoom: 15,
+
+            }); // fly to a new location
+          
+            if (typeof (map.getSource('macu-src')) == 'undefined') {
+              map.addSource('macu-src', {
+                type: 'geojson',
+                data: macu
+              });
+            } else {
+              map.getSource('macu-src').setData(macu);
+
+            }
+
+            if (!map.getLayer("macu-points")) {
+              map.addLayer(macuLayer);
+            }
+
+          } 
+
+          else if (index === 1) {
+            map.flyTo({
+              center: [-122.323024, 47.660003],
+              zoom: 15,
+
+            }); // fly to a new location
+          
+            if (typeof (map.getSource('yfg-src')) == 'undefined') {
+              map.addSource('yfg-src', {
+                type: 'geojson',
+                data: yfg
+              });
+            } else {
+              map.getSource('yfg-src').setData(yfg);
+
+            }
+
+            if (!map.getLayer("yfg-points")) {
+              map.addLayer(yfgLayer);
+            }
+          } 
+
+          else if (index === 2) {
+            map.flyTo({
+              center: [-122.323024, 47.660003],
+              zoom: 15,
+
+            }); // fly to a new location
+          
+            if (typeof (map.getSource('yifang-src')) == 'undefined') {
+              map.addSource('yifang-src', {
+                type: 'geojson',
+                data: yifang
+              });
+            } else {
+              map.getSource('yifang-src').setData(yifang);
+
+            }
+
+            if (!map.getLayer("yifang-points")) {
+              map.addLayer(yifangLayer);
+            }
+
+          } 
+
+          else if (index === 6) {
+            map.flyTo({
+              center: [-122.31348192287193, 47.65911977751378],
+              zoom: 16,
+
+            }); // fly to a new location
+  
+            map.setStyle('mapbox://styles/mapbox/satellite-streets-v10');
+          } 
+        }
+
+        // 11. This function performs when a scene exists the storyboard
+        function handleSceneExit(response) {
+          var index = response.index;
+
+          if (index === 4) {
+            if (map.getLayer("cultivate-points")) {
+              map.removeLayer('cultivate-points');
+            }
+          } 
+
+          else if (index === 5) {
+            if (map.getLayer("mod-points")) {
+              map.removeLayer('mod-points');
+            }
+          }
+
+          else if (index === 3) {
+            if (map.getLayer("dont-points")) {
+              map.removeLayer('dont-points');
+            }
+          }
+
+          else if (index === 0) {
+            if (map.getLayer("macu-points")) {
+              map.removeLayer('macu-points');
+            }
+          }
+
+          else if (index === 1) {
+            if (map.getLayer("yfg-points")) {
+              map.removeLayer('yfg-points');
+            }
+          }
+
+          else if (index === 2) {
+            if (map.getLayer("yifang-points")) {
+              map.removeLayer('yifang-points');
+            }
+          }
+
+          else if (index === 6) {
+            map.setStyle('mapbox://styles/mapbox/light-v10');
+          }
+
+        }
+      });
+
+    };
+
+    // 5 call the data loading function.
+    geojsonFetch();
+  </script>
+</body>
+
+</html>
