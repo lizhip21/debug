@@ -259,19 +259,6 @@
         };
         console.log('layers')
 
-        // 9. Initialize the script panel
-        scriptPanel
-          .setup({
-            step: ".scene", // all the scenes.
-            offset: 0.33, // the location of the enter and exit trigger
-            debug: false // toggler on or off the debug mode.
-          })
-          .onStepEnter(handleSceneEnter)
-          .onStepExit(handleSceneExit);
-        
-        // 10. This function performs when a scene enters the storyboard
-        function handleSceneEnter(response) {
-
           var index = response.index; // capture the id of the current scene. 
 
           if (index === 4) { // When enter the first scene
@@ -420,53 +407,7 @@
             map.setStyle('mapbox://styles/mapbox/satellite-streets-v10');
           } 
         }
-
-        // 11. This function performs when a scene exists the storyboard
-        function handleSceneExit(response) {
-          var index = response.index;
-
-          if (index === 4) {
-            if (map.getLayer("cultivate-points")) {
-              map.removeLayer('cultivate-points');
-            }
-          } 
-
-          else if (index === 5) {
-            if (map.getLayer("mod-points")) {
-              map.removeLayer('mod-points');
-            }
-          }
-
-          else if (index === 3) {
-            if (map.getLayer("dont-points")) {
-              map.removeLayer('dont-points');
-            }
-          }
-
-          else if (index === 0) {
-            if (map.getLayer("macu-points")) {
-              map.removeLayer('macu-points');
-            }
-          }
-
-          else if (index === 1) {
-            if (map.getLayer("yfg-points")) {
-              map.removeLayer('yfg-points');
-            }
-          }
-
-          else if (index === 2) {
-            if (map.getLayer("yifang-points")) {
-              map.removeLayer('yifang-points');
-            }
-          }
-
-          else if (index === 6) {
-            map.setStyle('mapbox://styles/mapbox/light-v10');
-          }
-
-        }
-      });
+);
 
     };
 
