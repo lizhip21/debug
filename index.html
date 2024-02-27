@@ -134,23 +134,33 @@
 
     // 5. define the asynchronous function to load geojson data and then performs the dependent actions.
     async function geojsonFetch() {
+  // Fetch all GeoJSON data concurrently
+  const urls = ["assets/cultivate.geojson", "assets/mod.geojson", "assets/dont.geojson", "assets/macu.geojson", "assets/yfg.geojson", "assets/yifang.geojson"];
+  const responses = await Promise.all(urls.map(url => fetch(url)));
+  const data = await Promise.all(responses.map(response => response.json()));
 
-      // 6 wait till the data are fully loaded.
+  // Destructure the data into individual variables if needed
+  const [cultivate, mod, dont, macu, yfg, yifang] = data;
 
-      console.log("data loaded")
-      console.log(map)
+  console.log("Data loaded");
 
-      setTimeout(3)
-      // 7. Trigger operations inside of the the ()=> {} funciton while loading the map.
-      map.on('load', () => {
-        console.log("map source and layers")
-      }
-);
+  // Initialize and configure your map here
+  // Ensure the map container is already in the DOM
+  map.on('load', () => {
+    console.log("Map source and layers");
+    // Add your sources and layers using the loaded GeoJSON data
+  });
 
-    };
+  // If your map initialization code is elsewhere, you can call it here
+  // or trigger an event that indicates data is ready and map can be loaded.
+}
 
-    // 5 call the data loading function.
-    geojsonFetch();
+// Call geojsonFetch to load data and then the map
+geojsonFetch().then(() => {
+  console.log("Data and map are ready");
+  // Any additional code that depends on the map and data being ready
+});
+
   </script>
 </body>
 
